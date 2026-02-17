@@ -458,7 +458,7 @@
         <div class="charts-row">
             <div class="chart-card">
                 <div class="chart-title">Publications by Year (2015–2025)</div>
-                <div class="chart-container" onclick="openOpenAlex('all')">
+                <div class="chart-container">
                     <canvas id="barChart"></canvas>
                 </div>
                 <div class="legend">
@@ -474,7 +474,7 @@
             </div>
             <div class="chart-card">
                 <div class="chart-title">Access Status 2025</div>
-                <div class="ring-chart-container" onclick="openOpenAlex('all-2025')">
+                <div class="ring-chart-container">
                     <canvas id="ringChart"></canvas>
                     <div class="ring-center-text">
                         <div class="ring-center-value" id="ring-center-value">-</div>
@@ -502,6 +502,7 @@
         const API_KEY = '2Qe6LaCj9SHtDVFG7xqWhi';
         const FUNDER_ID = 'F4320321800';
         const FUNDER_FILTER = 'funders.id:F4320321800';
+        const FUNDER_FILTER_WEB = 'funders.id:f4320321800'; // lowercase for OpenAlex web interface
         const BASE_URL = 'https://api.openalex.org';
 
         // Colors
@@ -527,30 +528,36 @@
         }
 
         // Open OpenAlex links
-        function openOpenAlex(type) {
+        function openOpenAlex(type, year = null) {
             const baseUrl = 'https://openalex.org/works';
+            let filter = FUNDER_FILTER_WEB;
+
+            // Add year filter if specified
+            if (year) {
+                filter += `,publication_year:${year}`;
+            }
 
             switch(type) {
                 case 'all':
-                    window.open(`${baseUrl}?filter=${FUNDER_FILTER}`, '_blank');
+                    window.open(`${baseUrl}?filter=${filter}`, '_blank');
                     break;
                 case 'oa':
-                    window.open(`${baseUrl}?filter=${FUNDER_FILTER},is_oa:true`, '_blank');
+                    window.open(`${baseUrl}?filter=${filter},open_access.is_oa:true`, '_blank');
+                    break;
+                case 'closed':
+                    window.open(`${baseUrl}?filter=${filter},open_access.is_oa:false`, '_blank');
                     break;
                 case 'green':
-                    window.open(`${baseUrl}?filter=${FUNDER_FILTER},oa_status:green`, '_blank');
+                    window.open(`${baseUrl}?filter=${filter},open_access.oa_status:green`, '_blank');
                     break;
                 case 'gold':
-                    window.open(`${baseUrl}?filter=${FUNDER_FILTER},oa_status:gold`, '_blank');
+                    window.open(`${baseUrl}?filter=${filter},open_access.oa_status:gold`, '_blank');
                     break;
                 case 'hybrid':
-                    window.open(`${baseUrl}?filter=${FUNDER_FILTER},oa_status:hybrid`, '_blank');
+                    window.open(`${baseUrl}?filter=${filter},open_access.oa_status:hybrid`, '_blank');
                     break;
                 case 'diamond':
-                    window.open(`${baseUrl}?filter=${FUNDER_FILTER},oa_status:diamond`, '_blank');
-                    break;
-                case 'all-2025':
-                    window.open(`${baseUrl}?filter=${FUNDER_FILTER},publication_year:2025`, '_blank');
+                    window.open(`${baseUrl}?filter=${filter},open_access.oa_status:diamond`, '_blank');
                     break;
             }
         }
@@ -702,6 +709,16 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        onClick: function(event, elements) {
+                            if (elements.length > 0) {
+                                const element = elements[0];
+                                const year = years[element.index];
+                                const datasetIndex = element.datasetIndex;
+                                // Dataset 0 = Open Access, Dataset 1 = Closed
+                                const type = datasetIndex === 0 ? 'oa' : 'closed';
+                                openOpenAlex(type, year);
+                            }
+                        },
                         plugins: {
                             legend: {
                                 display: false
@@ -808,6 +825,15 @@
                         responsive: true,
                         maintainAspectRatio: false,
                         cutout: '65%',
+                        onClick: function(event, elements) {
+                            if (elements.length > 0) {
+                                const element = elements[0];
+                                // Order: green, gold, hybrid, diamond, closed
+                                const types = ['green', 'gold', 'hybrid', 'diamond', 'closed'];
+                                const type = types[element.index];
+                                openOpenAlex(type, currentYear);
+                            }
+                        },
                         plugins: {
                             legend: {
                                 position: 'bottom',
