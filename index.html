@@ -909,33 +909,71 @@
             try {
                 const currentYear = 2025;
 
-                // Get top 30 publishers for the current year
+                // Get publishers (host organizations) for the current year
                 const publisherData = await fetchData('/works', {
                     filter: `${FUNDER_FILTER},publication_year:${currentYear}`,
-                    group_by: 'primary_location.source.publisher_lineage'
+                    group_by: 'primary_location.source.host_organization'
                 });
 
-                // Get top 30 publishers sorted by count
-                const topPublishers = publisherData.group_by
-                    .filter(p => p.key !== 'unknown')
-                    .sort((a, b) => b.count - a.count)
+                // Filter out unknown and get initial list
+                const allPublishers = publisherData.group_by
+                    .filter(p => p.key !== 'unknown');
+
+                // Fetch parent info for all publishers to consolidate subsidiaries
+                const publisherInfoPromises = allPublishers.map(p =>
+                    fetch(`${BASE_URL}/publishers/${p.key.replace('https://openalex.org/', '')}?api_key=${API_KEY}`)
+                        .then(r => r.json())
+                        .catch(() => null)
+                );
+                const publisherInfos = await Promise.all(publisherInfoPromises);
+
+                // Build map of publisher -> parent (or self if no parent)
+                const consolidatedCounts = {};
+
+                allPublishers.forEach((publisher, index) => {
+                    const info = publisherInfos[index];
+                    let targetId = publisher.key;
+                    let targetName = publisher.key_display_name || 'Unknown';
+
+                    // If this publisher has a parent, consolidate under parent
+                    // parent_publisher is an object with id and display_name
+                    if (info && info.parent_publisher && info.parent_publisher.id) {
+                        targetId = info.parent_publisher.id;
+                        targetName = info.parent_publisher.display_name || targetName;
+                    }
+
+                    if (!consolidatedCounts[targetId]) {
+                        consolidatedCounts[targetId] = { count: 0, name: targetName };
+                    }
+                    consolidatedCounts[targetId].count += publisher.count;
+                    // Update name if we have a better one from parent
+                    if (info && info.parent_publisher && info.parent_publisher.display_name) {
+                        consolidatedCounts[targetId].name = info.parent_publisher.display_name;
+                    }
+                });
+
+                // No need to fetch parent names separately - we get them from parent_publisher.display_name
+
+                // Sort by count and take top 30
+                const sortedPublishers = Object.entries(consolidatedCounts)
+                    .sort((a, b) => b[1].count - a[1].count)
                     .slice(0, 30);
 
                 // Prepare publisher info
                 const publisherNames = [];
                 const publisherIds = [];
 
-                topPublishers.forEach(publisher => {
-                    publisherIds.push(publisher.key);
-                    const publisherName = publisher.key_display_name || 'Unknown';
+                sortedPublishers.forEach(([id, data]) => {
+                    publisherIds.push(id);
+                    const publisherName = data.name || 'Unknown';
                     // Truncate long names for vertical bars
                     publisherNames.push(publisherName.length > 20 ? publisherName.substring(0, 17) + '...' : publisherName);
                 });
 
-                // Fetch OA breakdown for all publishers in parallel
-                const oaBreakdownPromises = topPublishers.map(publisher =>
+                // Fetch OA breakdown for all consolidated publishers in parallel
+                const oaBreakdownPromises = publisherIds.map(publisherId =>
                     fetchData('/works', {
-                        filter: `${FUNDER_FILTER},publication_year:${currentYear},primary_location.source.publisher_lineage:${publisher.key}`,
+                        filter: `${FUNDER_FILTER},publication_year:${currentYear},primary_location.source.host_organization_lineage:${publisherId}`,
                         group_by: 'oa_status'
                     })
                 );
@@ -1015,10 +1053,9 @@
                                 const datasetIndex = element.datasetIndex;
                                 const types = ['green', 'gold', 'hybrid', 'diamond', 'closed'];
                                 const type = types[datasetIndex];
-                                // Open OpenAlex filtered by publisher and OA status
-                                // Use the full publisher URL, properly encoded
-                                const encodedPublisherId = encodeURIComponent(publisherId);
-                                window.open(`https://openalex.org/works?filter=${FUNDER_FILTER_WEB},publication_year:${currentYear},primary_location.source.publisher_lineage:${encodedPublisherId},open_access.oa_status:${type}`, '_blank');
+                                // Open OpenAlex filtered by publisher (including subsidiaries) and OA status
+                                const publisherShortId = publisherId.replace('https://openalex.org/', '').toLowerCase();
+                                window.open(`https://openalex.org/works?filter=${FUNDER_FILTER_WEB},publication_year:${currentYear},primary_location.source.host_organization_lineage:${publisherShortId},open_access.oa_status:${type}`, '_blank');
                             }
                         },
                         plugins: {
