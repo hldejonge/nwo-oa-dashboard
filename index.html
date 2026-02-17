@@ -217,6 +217,17 @@
             margin-top: 0.25rem;
         }
 
+        /* Publisher Chart */
+        .publisher-chart-section {
+            margin-bottom: 2rem;
+        }
+
+        .publisher-chart-container {
+            position: relative;
+            height: 400px;
+            cursor: pointer;
+        }
+
         /* Publications List */
         .publications-section {
             background: var(--white);
@@ -484,6 +495,36 @@
             </div>
         </div>
 
+        <!-- Publisher Chart -->
+        <div class="chart-card publisher-chart-section">
+            <div class="chart-title">Publications by Publisher (2025) — Top 30</div>
+            <div class="publisher-chart-container">
+                <canvas id="publisherChart"></canvas>
+            </div>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: var(--green)"></div>
+                    <span>Green</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: var(--gold)"></div>
+                    <span>Gold</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: var(--hybrid)"></div>
+                    <span>Hybrid</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: var(--diamond)"></div>
+                    <span>Diamond</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: var(--closed)"></div>
+                    <span>Closed</span>
+                </div>
+            </div>
+        </div>
+
         <!-- Publications List -->
         <div class="publications-section">
             <div class="publications-header">
@@ -516,7 +557,7 @@
         };
 
         // Chart instances
-        let barChart, ringChart;
+        let barChart, ringChart, publisherChart;
 
         // Show error to user
         function showError(message) {
@@ -863,6 +904,170 @@
             }
         }
 
+        // Load publisher data for vertical bar chart
+        async function loadPublisherData() {
+            try {
+                const currentYear = 2025;
+
+                // Get top 30 publishers for the current year
+                const publisherData = await fetchData('/works', {
+                    filter: `${FUNDER_FILTER},publication_year:${currentYear}`,
+                    group_by: 'primary_location.source.publisher_lineage'
+                });
+
+                // Get top 30 publishers sorted by count
+                const topPublishers = publisherData.group_by
+                    .filter(p => p.key !== 'unknown')
+                    .sort((a, b) => b.count - a.count)
+                    .slice(0, 30);
+
+                // Prepare publisher info
+                const publisherNames = [];
+                const publisherIds = [];
+
+                topPublishers.forEach(publisher => {
+                    publisherIds.push(publisher.key);
+                    const publisherName = publisher.key_display_name || 'Unknown';
+                    // Truncate long names for vertical bars
+                    publisherNames.push(publisherName.length > 20 ? publisherName.substring(0, 17) + '...' : publisherName);
+                });
+
+                // Fetch OA breakdown for all publishers in parallel
+                const oaBreakdownPromises = topPublishers.map(publisher =>
+                    fetchData('/works', {
+                        filter: `${FUNDER_FILTER},publication_year:${currentYear},primary_location.source.publisher_lineage:${publisher.key}`,
+                        group_by: 'oa_status'
+                    })
+                );
+
+                const oaBreakdowns = await Promise.all(oaBreakdownPromises);
+
+                // Process OA breakdown results
+                const greenData = [];
+                const goldData = [];
+                const hybridData = [];
+                const diamondData = [];
+                const closedData = [];
+
+                oaBreakdowns.forEach(oaBreakdown => {
+                    let green = 0, gold = 0, hybrid = 0, diamond = 0, closed = 0;
+                    oaBreakdown.group_by.forEach(group => {
+                        if (group.key === 'green') green = group.count;
+                        else if (group.key === 'gold') gold = group.count;
+                        else if (group.key === 'hybrid') hybrid = group.count;
+                        else if (group.key === 'diamond') diamond = group.count;
+                        else if (group.key === 'closed') closed = group.count;
+                    });
+
+                    greenData.push(green);
+                    goldData.push(gold);
+                    hybridData.push(hybrid);
+                    diamondData.push(diamond);
+                    closedData.push(closed);
+                });
+
+                // Create vertical stacked bar chart
+                const ctx = document.getElementById('publisherChart').getContext('2d');
+                publisherChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: publisherNames,
+                        datasets: [
+                            {
+                                label: 'Green',
+                                data: greenData,
+                                backgroundColor: colors.green,
+                                borderRadius: 2
+                            },
+                            {
+                                label: 'Gold',
+                                data: goldData,
+                                backgroundColor: colors.gold,
+                                borderRadius: 2
+                            },
+                            {
+                                label: 'Hybrid',
+                                data: hybridData,
+                                backgroundColor: colors.hybrid,
+                                borderRadius: 2
+                            },
+                            {
+                                label: 'Diamond',
+                                data: diamondData,
+                                backgroundColor: colors.diamond,
+                                borderRadius: 2
+                            },
+                            {
+                                label: 'Closed',
+                                data: closedData,
+                                backgroundColor: colors.closed,
+                                borderRadius: 2
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        onClick: function(event, elements) {
+                            if (elements.length > 0) {
+                                const element = elements[0];
+                                const publisherId = publisherIds[element.index];
+                                const datasetIndex = element.datasetIndex;
+                                const types = ['green', 'gold', 'hybrid', 'diamond', 'closed'];
+                                const type = types[datasetIndex];
+                                // Open OpenAlex filtered by publisher and OA status
+                                // Use the full publisher URL, properly encoded
+                                const encodedPublisherId = encodeURIComponent(publisherId);
+                                window.open(`https://openalex.org/works?filter=${FUNDER_FILTER_WEB},publication_year:${currentYear},primary_location.source.publisher_lineage:${encodedPublisherId},open_access.oa_status:${type}`, '_blank');
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.dataset.label}: ${formatNumber(context.raw)}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                stacked: true,
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    maxRotation: 45,
+                                    minRotation: 45,
+                                    font: {
+                                        size: 10
+                                    }
+                                }
+                            },
+                            y: {
+                                stacked: true,
+                                grid: {
+                                    color: '#e5e7eb'
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return formatNumber(value);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error loading publisher data:', error);
+                showError(`Failed to load publisher data: ${error.message}`);
+            }
+        }
+
         // Load recent publications
         async function loadPublications() {
             try {
@@ -916,7 +1121,8 @@
                 loadKPIs(),
                 loadYearlyData(),
                 loadRingData(),
-                loadPublications()
+                loadPublications(),
+                loadPublisherData()
             ]);
         }
 
