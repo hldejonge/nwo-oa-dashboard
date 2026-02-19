@@ -217,15 +217,34 @@
             margin-top: 0.25rem;
         }
 
-        /* Publisher Chart */
-        .publisher-chart-section {
+        /* Publisher and Institution Charts Row */
+        .bottom-charts-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
             margin-bottom: 2rem;
+        }
+
+        .publisher-chart-section {
+            margin-bottom: 0;
         }
 
         .publisher-chart-container {
             position: relative;
-            height: 400px;
+            height: 350px;
             cursor: pointer;
+        }
+
+        .institution-chart-container {
+            position: relative;
+            height: 350px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 1200px) {
+            .bottom-charts-row {
+                grid-template-columns: 1fr;
+            }
         }
 
         /* Publications List */
@@ -495,32 +514,53 @@
             </div>
         </div>
 
-        <!-- Publisher Chart -->
-        <div class="chart-card publisher-chart-section">
-            <div class="chart-title">Publications by Publisher (2025) — Top 30</div>
-            <div class="publisher-chart-container">
-                <canvas id="publisherChart"></canvas>
+        <!-- Publisher and Institution Charts Row -->
+        <div class="bottom-charts-row">
+            <!-- Publisher Chart -->
+            <div class="chart-card publisher-chart-section">
+                <div class="chart-title">Publications by Publisher (2025) — Top 15</div>
+                <div class="publisher-chart-container">
+                    <canvas id="publisherChart"></canvas>
+                </div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--green)"></div>
+                        <span>Green</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--gold)"></div>
+                        <span>Gold</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--hybrid)"></div>
+                        <span>Hybrid</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--diamond)"></div>
+                        <span>Diamond</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--closed)"></div>
+                        <span>Closed</span>
+                    </div>
+                </div>
             </div>
-            <div class="legend">
-                <div class="legend-item">
-                    <div class="legend-color" style="background: var(--green)"></div>
-                    <span>Green</span>
+
+            <!-- Institution Chart -->
+            <div class="chart-card">
+                <div class="chart-title">Publications by Institution (2025) — Top 15</div>
+                <div class="institution-chart-container">
+                    <canvas id="institutionChart"></canvas>
                 </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: var(--gold)"></div>
-                    <span>Gold</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: var(--hybrid)"></div>
-                    <span>Hybrid</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: var(--diamond)"></div>
-                    <span>Diamond</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: var(--closed)"></div>
-                    <span>Closed</span>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--nwo-blue)"></div>
+                        <span>Open Access</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--closed)"></div>
+                        <span>Closed</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -557,7 +597,7 @@
         };
 
         // Chart instances
-        let barChart, ringChart, publisherChart;
+        let barChart, ringChart, publisherChart, institutionChart;
 
         // Show error to user
         function showError(message) {
@@ -954,10 +994,10 @@
 
                 // No need to fetch parent names separately - we get them from parent_publisher.display_name
 
-                // Sort by count and take top 30
+                // Sort by count and take top 15
                 const sortedPublishers = Object.entries(consolidatedCounts)
                     .sort((a, b) => b[1].count - a[1].count)
-                    .slice(0, 30);
+                    .slice(0, 15);
 
                 // Prepare publisher info
                 const publisherNames = [];
@@ -1105,6 +1145,143 @@
             }
         }
 
+        // Load institution data for vertical bar chart
+        async function loadInstitutionData() {
+            try {
+                const currentYear = 2025;
+
+                // Get institutions for the current year
+                const institutionData = await fetchData('/works', {
+                    filter: `${FUNDER_FILTER},publication_year:${currentYear}`,
+                    group_by: 'authorships.institutions.id'
+                });
+
+                // Get top 15 institutions sorted by count
+                const topInstitutions = institutionData.group_by
+                    .filter(i => i.key !== 'unknown')
+                    .sort((a, b) => b.count - a.count)
+                    .slice(0, 15);
+
+                // Prepare institution info
+                const institutionNames = [];
+                const institutionIds = [];
+
+                topInstitutions.forEach(inst => {
+                    institutionIds.push(inst.key);
+                    const instName = inst.key_display_name || 'Unknown';
+                    // Truncate long names for vertical bars
+                    institutionNames.push(instName.length > 25 ? instName.substring(0, 22) + '...' : instName);
+                });
+
+                // Fetch OA breakdown for all institutions in parallel
+                const oaBreakdownPromises = institutionIds.map(instId =>
+                    fetchData('/works', {
+                        filter: `${FUNDER_FILTER},publication_year:${currentYear},authorships.institutions.id:${instId}`,
+                        group_by: 'is_oa'
+                    })
+                );
+
+                const oaBreakdowns = await Promise.all(oaBreakdownPromises);
+
+                // Process OA breakdown results
+                const oaData = [];
+                const closedData = [];
+
+                oaBreakdowns.forEach(oaBreakdown => {
+                    let oa = 0, closed = 0;
+                    oaBreakdown.group_by.forEach(group => {
+                        // is_oa returns "1" for true and "0" for false
+                        if (group.key === '1' || group.key === 'true' || group.key === true) oa = group.count;
+                        else if (group.key === '0' || group.key === 'false' || group.key === false) closed = group.count;
+                    });
+
+                    oaData.push(oa);
+                    closedData.push(closed);
+                });
+
+                // Create vertical stacked bar chart
+                const ctx = document.getElementById('institutionChart').getContext('2d');
+                institutionChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: institutionNames,
+                        datasets: [
+                            {
+                                label: 'Open Access',
+                                data: oaData,
+                                backgroundColor: colors.nwoBlue,
+                                borderRadius: 2
+                            },
+                            {
+                                label: 'Closed',
+                                data: closedData,
+                                backgroundColor: colors.closed,
+                                borderRadius: 2
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        onClick: function(event, elements) {
+                            if (elements.length > 0) {
+                                const element = elements[0];
+                                const instId = institutionIds[element.index];
+                                const datasetIndex = element.datasetIndex;
+                                // Dataset 0 = OA, Dataset 1 = Closed
+                                const isOa = datasetIndex === 0 ? 'true' : 'false';
+                                // Extract short ID (e.g., https://openalex.org/I123 -> i123)
+                                const instShortId = instId.replace('https://openalex.org/', '').toLowerCase();
+                                window.open(`https://openalex.org/works?filter=${FUNDER_FILTER_WEB},publication_year:${currentYear},institutions.id:${instShortId},open_access.is_oa:${isOa}`, '_blank');
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.dataset.label}: ${formatNumber(context.raw)}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                stacked: true,
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    maxRotation: 45,
+                                    minRotation: 45,
+                                    font: {
+                                        size: 10
+                                    }
+                                }
+                            },
+                            y: {
+                                stacked: true,
+                                grid: {
+                                    color: '#e5e7eb'
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return formatNumber(value);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error loading institution data:', error);
+                showError(`Failed to load institution data: ${error.message}`);
+            }
+        }
+
         // Load recent publications
         async function loadPublications() {
             try {
@@ -1159,7 +1336,8 @@
                 loadYearlyData(),
                 loadRingData(),
                 loadPublications(),
-                loadPublisherData()
+                loadPublisherData(),
+                loadInstitutionData()
             ]);
         }
 
