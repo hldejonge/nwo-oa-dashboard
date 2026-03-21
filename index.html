@@ -402,6 +402,225 @@
             border-radius: 2px;
         }
 
+        /* Tabs */
+        .tabs-container {
+            margin-bottom: 2rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 3px solid var(--gray-200);
+        }
+
+        .tab {
+            padding: 1rem 2rem;
+            font-family: 'Saira Extra Condensed', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--gray-600);
+            background: none;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            transition: color 0.2s;
+        }
+
+        .tab:hover {
+            color: var(--nwo-blue);
+        }
+
+        .tab.active {
+            color: var(--nwo-dark-blue);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--nwo-blue);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Grants Section */
+        .search-section {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            font-family: 'Barlow', sans-serif;
+            border: 2px solid var(--gray-200);
+            border-radius: 6px;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--nwo-blue);
+        }
+
+        .search-btn {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-family: 'Barlow', sans-serif;
+            font-weight: 600;
+            background: var(--nwo-blue);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .search-btn:hover {
+            background: var(--nwo-dark-blue);
+        }
+
+        .grants-list-section {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .grants-list {
+            list-style: none;
+        }
+
+        .grant-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray-100);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .grant-item:last-child {
+            border-bottom: none;
+        }
+
+        .grant-item:hover {
+            background: var(--gray-100);
+            margin: 0 -1rem;
+            padding-left: 2rem;
+            padding-right: 2rem;
+        }
+
+        .grant-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .grant-id {
+            font-weight: 600;
+            color: var(--nwo-dark-blue);
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .grant-title {
+            color: var(--gray-600);
+            font-size: 0.875rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .grant-stats {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .grant-works-count {
+            font-family: 'Saira Extra Condensed', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--nwo-dark-blue);
+            text-align: center;
+        }
+
+        .grant-works-label {
+            font-size: 0.75rem;
+            color: var(--gray-600);
+        }
+
+        .see-outputs-link {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--nwo-blue);
+            text-decoration: none;
+            border: 2px solid var(--nwo-blue);
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .see-outputs-link:hover {
+            background: var(--nwo-blue);
+            color: white;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .pagination-btn {
+            padding: 0.5rem 1rem;
+            font-family: 'Barlow', sans-serif;
+            font-size: 0.875rem;
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            border-color: var(--nwo-blue);
+            color: var(--nwo-blue);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-info {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+
         /* Responsive */
         @media (max-width: 1200px) {
             .kpi-row {
@@ -456,126 +675,167 @@
             <span id="error-message"></span>
         </div>
 
-        <!-- KPI Row -->
-        <div class="kpi-row" id="kpi-row">
-            <div class="kpi-card total" onclick="openOpenAlex('all')">
-                <div class="kpi-value" id="total-works">-</div>
-                <div class="kpi-label">Total Works</div>
-            </div>
-            <div class="kpi-card oa-total" onclick="openOpenAlex('oa')">
-                <div class="kpi-value" id="oa-percent">-</div>
-                <div class="kpi-label">Open Access</div>
-            </div>
-            <div class="kpi-card green" onclick="openOpenAlex('green')">
-                <div class="kpi-value" id="green-percent">-</div>
-                <div class="kpi-label">Green OA</div>
-            </div>
-            <div class="kpi-card gold" onclick="openOpenAlex('gold')">
-                <div class="kpi-value" id="gold-percent">-</div>
-                <div class="kpi-label">Gold OA</div>
-            </div>
-            <div class="kpi-card hybrid" onclick="openOpenAlex('hybrid')">
-                <div class="kpi-value" id="hybrid-percent">-</div>
-                <div class="kpi-label">Hybrid OA</div>
-            </div>
-            <div class="kpi-card diamond" onclick="openOpenAlex('diamond')">
-                <div class="kpi-value" id="diamond-percent">-</div>
-                <div class="kpi-label">Diamond OA</div>
+        <!-- Tabs -->
+        <div class="tabs-container">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('publications')">Publications</button>
+                <button class="tab" onclick="switchTab('grants')">Grants</button>
             </div>
         </div>
 
-        <!-- Charts Row -->
-        <div class="charts-row">
-            <div class="chart-card">
-                <div class="chart-title">Publications by Year (2015–2025)</div>
-                <div class="chart-container">
-                    <canvas id="barChart"></canvas>
+        <!-- Publications Tab Content -->
+        <div id="publications-tab" class="tab-content active">
+            <!-- KPI Row -->
+            <div class="kpi-row" id="kpi-row">
+                <div class="kpi-card total" onclick="openOpenAlex('all')">
+                    <div class="kpi-value" id="total-works">-</div>
+                    <div class="kpi-label">Total Works</div>
                 </div>
-                <div class="legend">
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: var(--nwo-blue)"></div>
-                        <span>Open Access</span>
+                <div class="kpi-card oa-total" onclick="openOpenAlex('oa')">
+                    <div class="kpi-value" id="oa-percent">-</div>
+                    <div class="kpi-label">Open Access</div>
+                </div>
+                <div class="kpi-card green" onclick="openOpenAlex('green')">
+                    <div class="kpi-value" id="green-percent">-</div>
+                    <div class="kpi-label">Green OA</div>
+                </div>
+                <div class="kpi-card gold" onclick="openOpenAlex('gold')">
+                    <div class="kpi-value" id="gold-percent">-</div>
+                    <div class="kpi-label">Gold OA</div>
+                </div>
+                <div class="kpi-card hybrid" onclick="openOpenAlex('hybrid')">
+                    <div class="kpi-value" id="hybrid-percent">-</div>
+                    <div class="kpi-label">Hybrid OA</div>
+                </div>
+                <div class="kpi-card diamond" onclick="openOpenAlex('diamond')">
+                    <div class="kpi-value" id="diamond-percent">-</div>
+                    <div class="kpi-label">Diamond OA</div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="charts-row">
+                <div class="chart-card">
+                    <div class="chart-title">Publications by Year (2015–2025)</div>
+                    <div class="chart-container">
+                        <canvas id="barChart"></canvas>
                     </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: var(--closed)"></div>
-                        <span>Closed Access</span>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: var(--nwo-blue)"></div>
+                            <span>Open Access</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: var(--closed)"></div>
+                            <span>Closed Access</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">Access Status 2025</div>
+                    <div class="ring-chart-container">
+                        <canvas id="ringChart"></canvas>
+                        <div class="ring-center-text">
+                            <div class="ring-center-value" id="ring-center-value">-</div>
+                            <div class="ring-center-label">Publications</div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="chart-card">
-                <div class="chart-title">Access Status 2025</div>
-                <div class="ring-chart-container">
-                    <canvas id="ringChart"></canvas>
-                    <div class="ring-center-text">
-                        <div class="ring-center-value" id="ring-center-value">-</div>
-                        <div class="ring-center-label">Publications</div>
+
+            <!-- Publisher and Institution Charts Row -->
+            <div class="bottom-charts-row">
+                <!-- Publisher Chart -->
+                <div class="chart-card publisher-chart-section">
+                    <div class="chart-title">Publications by Publisher (2025) — Top 15</div>
+                    <div class="publisher-chart-container">
+                        <canvas id="publisherChart"></canvas>
+                    </div>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: var(--green)"></div>
+                            <span>Green</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: var(--gold)"></div>
+                            <span>Gold</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: var(--hybrid)"></div>
+                            <span>Hybrid</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: var(--diamond)"></div>
+                            <span>Diamond</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: var(--closed)"></div>
+                            <span>Closed</span>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Institution Chart -->
+                <div class="chart-card">
+                    <div class="chart-title">Publications by Institution (2025) — Top 15</div>
+                    <div class="institution-chart-container">
+                        <canvas id="institutionChart"></canvas>
+                    </div>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: var(--nwo-blue)"></div>
+                            <span>Open Access</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: var(--closed)"></div>
+                            <span>Closed</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Publications List -->
+            <div class="publications-section">
+                <div class="publications-header">
+                    <div class="chart-title">25 Most Recent Publications</div>
+                </div>
+                <ul class="publications-list" id="publications-list">
+                    <li class="loading">
+                        <div class="spinner"></div>
+                        Loading publications...
+                    </li>
+                </ul>
             </div>
         </div>
 
-        <!-- Publisher and Institution Charts Row -->
-        <div class="bottom-charts-row">
-            <!-- Publisher Chart -->
-            <div class="chart-card publisher-chart-section">
-                <div class="chart-title">Publications by Publisher (2025) — Top 15</div>
-                <div class="publisher-chart-container">
-                    <canvas id="publisherChart"></canvas>
-                </div>
-                <div class="legend">
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: var(--green)"></div>
-                        <span>Green</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: var(--gold)"></div>
-                        <span>Gold</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: var(--hybrid)"></div>
-                        <span>Hybrid</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: var(--diamond)"></div>
-                        <span>Diamond</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: var(--closed)"></div>
-                        <span>Closed</span>
-                    </div>
+        <!-- Grants Tab Content -->
+        <div id="grants-tab" class="tab-content">
+            <!-- Search Section -->
+            <div class="search-section">
+                <div class="chart-title" style="margin-bottom: 1rem;">Search NWO-funded Projects</div>
+                <div class="search-bar">
+                    <input type="text" id="grants-search" class="search-input" placeholder="Search by grant ID or keyword...">
+                    <button class="search-btn" onclick="searchGrants()">Search</button>
                 </div>
             </div>
 
-            <!-- Institution Chart -->
-            <div class="chart-card">
-                <div class="chart-title">Publications by Institution (2025) — Top 15</div>
-                <div class="institution-chart-container">
-                    <canvas id="institutionChart"></canvas>
+            <!-- Grants List -->
+            <div class="grants-list-section">
+                <div class="publications-header">
+                    <div class="chart-title">NWO-funded Grants</div>
                 </div>
-                <div class="legend">
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: var(--nwo-blue)"></div>
-                        <span>Open Access</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: var(--closed)"></div>
-                        <span>Closed</span>
-                    </div>
+                <ul class="grants-list" id="grants-list">
+                    <li class="loading">
+                        <div class="spinner"></div>
+                        Loading grants...
+                    </li>
+                </ul>
+                <div class="pagination" id="grants-pagination">
+                    <button class="pagination-btn" id="prev-btn" onclick="changePage(-1)" disabled>Previous</button>
+                    <span class="pagination-info" id="page-info">Page 1</span>
+                    <button class="pagination-btn" id="next-btn" onclick="changePage(1)">Next</button>
                 </div>
             </div>
-        </div>
-
-        <!-- Publications List -->
-        <div class="publications-section">
-            <div class="publications-header">
-                <div class="chart-title">25 Most Recent Publications</div>
-            </div>
-            <ul class="publications-list" id="publications-list">
-                <li class="loading">
-                    <div class="spinner"></div>
-                    Loading publications...
-                </li>
-            </ul>
         </div>
     </div>
 
@@ -598,6 +858,17 @@
 
         // Chart instances
         let barChart, ringChart, publisherChart, institutionChart;
+
+        // Grants pagination state
+        let grantsCurrentPage = 1;
+        let grantsTotalPages = 1;
+        let grantsSearchQuery = '';
+        let grantsDataLoaded = false;
+
+        // Grants state
+        let allGrants = [];
+        let grantsPage = 1;
+        const GRANTS_PER_PAGE = 200;
 
         // Show error to user
         function showError(message) {
@@ -648,6 +919,20 @@
             return num.toLocaleString('en-US');
         }
 
+        // Rate limiting helper
+        let lastRequestTime = 0;
+        const MIN_REQUEST_INTERVAL = 100; // 100ms between requests (max 10 per second)
+
+        async function rateLimitedFetch(url) {
+            const now = Date.now();
+            const timeSinceLastRequest = now - lastRequestTime;
+            if (timeSinceLastRequest < MIN_REQUEST_INTERVAL) {
+                await new Promise(resolve => setTimeout(resolve, MIN_REQUEST_INTERVAL - timeSinceLastRequest));
+            }
+            lastRequestTime = Date.now();
+            return fetch(url);
+        }
+
         // Fetch data from OpenAlex
         async function fetchData(endpoint, params = {}) {
             const url = new URL(`${BASE_URL}${endpoint}`);
@@ -659,10 +944,16 @@
             console.log('Fetching:', url.toString());
 
             try {
-                const response = await fetch(url);
+                const response = await rateLimitedFetch(url);
                 if (!response.ok) {
                     const errorText = await response.text();
                     console.error('API Response:', errorText);
+                    // If rate limited, wait and retry
+                    if (response.status === 429) {
+                        console.log('Rate limited, waiting 1 second...');
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        return fetchData(endpoint, params);
+                    }
                     throw new Error(`API error ${response.status}: ${errorText.substring(0, 200)}`);
                 }
                 return response.json();
@@ -1282,6 +1573,141 @@
             }
         }
 
+        // Tab switching
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.tab[onclick="switchTab('${tab}')"]`).classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(`${tab}-tab`).classList.add('active');
+
+            // Load grants data if switching to grants tab for the first time
+            if (tab === 'grants' && !grantsDataLoaded) {
+                grantsDataLoaded = true;
+                loadGrantsList();
+            }
+        }
+
+        // Load grants list using /awards endpoint
+        async function loadGrantsList(page = 1, search = '') {
+            try {
+                const listEl = document.getElementById('grants-list');
+                listEl.innerHTML = '<li class="loading"><div class="spinner"></div>Loading grants...</li>';
+
+                grantsCurrentPage = page;
+                grantsSearchQuery = search;
+
+                // Fetch awards from OpenAlex /awards endpoint
+                if (allGrants.length === 0) {
+                    const data = await fetchData('/awards', {
+                        filter: `funder.id:${FUNDER_ID}`,
+                        per_page: GRANTS_PER_PAGE,
+                        sort: 'funded_outputs_count:desc'
+                    });
+
+                    allGrants = data.results || [];
+                    grantsTotalPages = Math.ceil((data.meta?.count || allGrants.length) / 25);
+                    grantsPage = 1;
+                }
+
+                // Apply search filter
+                let filteredGrants = allGrants;
+                if (search) {
+                    const searchLower = search.toLowerCase();
+                    filteredGrants = allGrants.filter(g =>
+                        (g.funder_award_id || '').toLowerCase().includes(searchLower) ||
+                        (g.display_name || '').toLowerCase().includes(searchLower)
+                    );
+                }
+
+                // Client-side pagination
+                const perPage = 25;
+                const totalGrants = filteredGrants.length;
+                grantsTotalPages = Math.ceil(totalGrants / perPage);
+                const startIndex = (page - 1) * perPage;
+                const paginatedGrants = filteredGrants.slice(startIndex, startIndex + perPage);
+
+                // Update pagination UI
+                updatePagination();
+
+                // Clear list
+                listEl.innerHTML = '';
+
+                if (paginatedGrants.length === 0) {
+                    listEl.innerHTML = '<li class="loading">No grants found.</li>';
+                    return;
+                }
+
+                // Render grants
+                paginatedGrants.forEach(grant => {
+                    const li = document.createElement('li');
+                    li.className = 'grant-item';
+
+                    const awardId = grant.funder_award_id || grant.id || '-';
+                    const displayName = grant.display_name || '';
+                    const worksCount = grant.funded_outputs_count || 0;
+                    const openAlexId = grant.id || '';
+
+                    li.innerHTML = `
+                        <div class="grant-info">
+                            <div class="grant-id">${awardId}</div>
+                            ${displayName ? `<div class="grant-title">${displayName}</div>` : ''}
+                        </div>
+                        <div class="grant-stats">
+                            <div>
+                                <div class="grant-works-count">${formatNumber(worksCount)}</div>
+                                <div class="grant-works-label">works</div>
+                            </div>
+                            <a href="grant-details.html?id=${encodeURIComponent(openAlexId)}&award=${encodeURIComponent(awardId)}" class="see-outputs-link">See Outputs</a>
+                        </div>
+                    `;
+
+                    listEl.appendChild(li);
+                });
+
+            } catch (error) {
+                console.error('Error loading grants list:', error);
+                showError(`Failed to load grants: ${error.message}`);
+                document.getElementById('grants-list').innerHTML =
+                    '<li class="loading">Error loading grants. Please try again later.</li>';
+            }
+        }
+
+        // Update pagination UI
+        function updatePagination() {
+            document.getElementById('prev-btn').disabled = grantsCurrentPage <= 1;
+            document.getElementById('next-btn').disabled = grantsCurrentPage >= grantsTotalPages;
+            document.getElementById('page-info').textContent = `Page ${grantsCurrentPage} of ${grantsTotalPages}`;
+        }
+
+        // Change page
+        function changePage(delta) {
+            const newPage = grantsCurrentPage + delta;
+            if (newPage >= 1 && newPage <= grantsTotalPages) {
+                loadGrantsList(newPage, grantsSearchQuery);
+            }
+        }
+
+        // Search grants
+        function searchGrants() {
+            const searchInput = document.getElementById('grants-search').value.trim();
+            loadGrantsList(1, searchInput);
+        }
+
+        // Handle enter key in search
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('grants-search');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        searchGrants();
+                    }
+                });
+            }
+        });
+
         // Load recent publications
         async function loadPublications() {
             try {
@@ -1329,16 +1755,19 @@
             }
         }
 
-        // Initialize dashboard
+        // Initialize dashboard - load sequentially to avoid rate limits
         async function init() {
-            await Promise.all([
-                loadKPIs(),
-                loadYearlyData(),
-                loadRingData(),
-                loadPublications(),
-                loadPublisherData(),
-                loadInstitutionData()
-            ]);
+            try {
+                await loadKPIs();
+                await loadYearlyData();
+                await loadRingData();
+                await loadPublications();
+                await loadPublisherData();
+                await loadInstitutionData();
+            } catch (error) {
+                console.error('Init error:', error);
+                showError(error.message);
+            }
         }
 
         // Start loading when page loads

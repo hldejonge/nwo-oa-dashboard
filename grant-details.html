@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grant Details - NWO Open Access Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Saira+Extra+Condensed:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --nwo-blue: #008b9b;
+            --nwo-blue-online: #008094;
+            --nwo-dark-blue: #18657C;
+            --nwo-light: #e6f4f6;
+            --gold: #d4a03c;
+            --green: #5a9a6e;
+            --hybrid: #7b68a6;
+            --diamond: #4a90a4;
+            --closed: #6b7280;
+            --white: #ffffff;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-600: #4b5563;
+            --gray-800: #1f2937;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Barlow', sans-serif;
+            background-color: var(--white);
+            color: var(--gray-800);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 3px solid var(--nwo-blue);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .nwo-logo { height: 80px; }
+        .nwo-logo img { height: 100%; width: auto; }
+
+        h1 {
+            font-family: 'Saira Extra Condensed', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--nwo-dark-blue);
+            text-transform: uppercase;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--nwo-blue);
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+        }
+        .back-link:hover { text-decoration: underline; }
+
+        .grant-header {
+            background: var(--nwo-light);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .grant-id {
+            font-family: 'Saira Extra Condensed', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--nwo-dark-blue);
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .grant-stats {
+            display: flex;
+            gap: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-item { text-align: center; }
+
+        .stat-value {
+            font-family: 'Saira Extra Condensed', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--nwo-dark-blue);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+            margin-top: 0.25rem;
+        }
+
+        .stat-value.oa { color: var(--green); }
+
+        .works-section {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .section-title {
+            font-family: 'Saira Extra Condensed', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--nwo-dark-blue);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .works-list { list-style: none; }
+
+        .work-item {
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--gray-100);
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+        .work-item:last-child { border-bottom: none; }
+        .work-item:hover {
+            background: var(--gray-100);
+            margin: 0 -1rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        .oa-badge {
+            flex-shrink: 0;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            min-width: 60px;
+            text-align: center;
+        }
+        .oa-badge.green { background: var(--green); color: white; }
+        .oa-badge.gold { background: var(--gold); color: white; }
+        .oa-badge.hybrid { background: var(--hybrid); color: white; }
+        .oa-badge.diamond { background: var(--diamond); color: white; }
+        .oa-badge.closed { background: var(--gray-600); color: white; }
+        .oa-badge.bronze { background: #cd7f32; color: white; }
+
+        .work-content { flex: 1; min-width: 0; }
+
+        .work-title {
+            font-weight: 500;
+            color: var(--nwo-dark-blue);
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+        .work-title:hover { text-decoration: underline; }
+
+        .work-meta {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+
+        .work-year {
+            font-weight: 600;
+            color: var(--nwo-blue);
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            color: var(--gray-600);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--gray-200);
+            border-top-color: var(--nwo-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 1rem;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .error-banner {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #991b1b;
+            display: none;
+        }
+        .error-banner.visible { display: block; }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .pagination-btn {
+            padding: 0.5rem 1rem;
+            font-family: 'Barlow', sans-serif;
+            font-size: 0.875rem;
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .pagination-btn:hover:not(:disabled) {
+            border-color: var(--nwo-blue);
+            color: var(--nwo-blue);
+        }
+        .pagination-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .pagination-info {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+
+        @media (max-width: 768px) {
+            .grant-stats { gap: 1.5rem; }
+            .stat-value { font-size: 2rem; }
+            header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-section">
+                <div class="nwo-logo">
+                    <img src="https://www.nwo.nl/themes/custom/nwo/assets/images/logo.svg?v=25" alt="NWO Logo">
+                </div>
+                <div>
+                    <h1>Grant Details</h1>
+                </div>
+            </div>
+        </header>
+
+        <a href="index.html" class="back-link">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back to Dashboard
+        </a>
+
+        <div class="error-banner" id="error-banner">
+            <span id="error-message"></span>
+        </div>
+
+        <div class="grant-header" id="grant-header">
+            <div class="loading">
+                <div class="spinner"></div>
+                Loading grant information...
+            </div>
+        </div>
+
+        <div class="works-section">
+            <div class="section-title">Publications</div>
+            <ul class="works-list" id="works-list">
+                <li class="loading">
+                    <div class="spinner"></div>
+                    Loading publications...
+                </li>
+            </ul>
+            <div class="pagination" id="pagination" style="display: none;">
+                <button class="pagination-btn" id="prev-btn" onclick="changePage(-1)" disabled>Previous</button>
+                <span class="pagination-info" id="page-info">Page 1</span>
+                <button class="pagination-btn" id="next-btn" onclick="changePage(1)">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_KEY = '2Qe6LaCj9SHtDVFG7xqWhi';
+        const BASE_URL = 'https://api.openalex.org';
+
+        // Get parameters from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const openAlexId = urlParams.get('id'); // Full OpenAlex award ID like https://openalex.org/A123
+        const awardId = urlParams.get('award'); // Human-readable award ID
+
+        // Pagination state
+        let currentPage = 1;
+        let totalPages = 1;
+        const perPage = 25;
+
+        function showError(message) {
+            const banner = document.getElementById('error-banner');
+            banner.classList.add('visible');
+            document.getElementById('error-message').textContent = message;
+        }
+
+        function formatNumber(num) {
+            return num.toLocaleString('en-US');
+        }
+
+        async function fetchData(endpoint, params = {}) {
+            const url = new URL(`${BASE_URL}${endpoint}`);
+            url.searchParams.append('api_key', API_KEY);
+            Object.entries(params).forEach(([key, value]) => {
+                url.searchParams.append(key, value);
+            });
+
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`API error ${response.status}`);
+            }
+            return response.json();
+        }
+
+        async function loadGrantInfo() {
+            if (!openAlexId) {
+                showError('No grant ID specified');
+                return;
+            }
+
+            // Extract short ID (e.g., https://openalex.org/A123 -> A123)
+            const shortId = openAlexId.split('/').pop();
+
+            try {
+                // Get works count and OA stats using the awards.id filter
+                const data = await fetchData('/works', {
+                    filter: `awards.id:${shortId}`,
+                    group_by: 'open_access.oa_status'
+                });
+
+                let totalWorks = 0;
+                let oaWorks = 0;
+
+                (data.group_by || []).forEach(group => {
+                    totalWorks += group.count;
+                    if (group.key !== 'closed') {
+                        oaWorks += group.count;
+                    }
+                });
+
+                const oaPercent = totalWorks > 0 ? ((oaWorks / totalWorks) * 100).toFixed(1) : 0;
+
+                // Update header
+                document.getElementById('grant-header').innerHTML = `
+                    <div class="grant-id">Grant: ${awardId || shortId}</div>
+                    <div class="grant-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">${formatNumber(totalWorks)}</div>
+                            <div class="stat-label">Total Works</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value oa">${oaPercent}%</div>
+                            <div class="stat-label">Open Access</div>
+                        </div>
+                    </div>
+                `;
+
+                // Load works
+                await loadWorks(1);
+
+            } catch (error) {
+                console.error('Error loading grant info:', error);
+                showError(`Failed to load grant information: ${error.message}`);
+                document.getElementById('grant-header').innerHTML = `
+                    <div class="grant-id">Grant: ${awardId || 'Unknown'}</div>
+                `;
+            }
+        }
+
+        async function loadWorks(page = 1) {
+            currentPage = page;
+            const listEl = document.getElementById('works-list');
+            listEl.innerHTML = '<li class="loading"><div class="spinner"></div>Loading publications...</li>';
+
+            if (!openAlexId) {
+                listEl.innerHTML = '<li class="loading">No grant ID specified</li>';
+                return;
+            }
+
+            const shortId = openAlexId.split('/').pop();
+
+            try {
+                // Fetch works for this award
+                const data = await fetchData('/works', {
+                    filter: `awards.id:${shortId}`,
+                    sort: 'publication_year:desc',
+                    per_page: perPage,
+                    page: page
+                });
+
+                // Update pagination
+                const totalResults = data.meta?.count || 0;
+                totalPages = Math.ceil(totalResults / perPage);
+
+                document.getElementById('pagination').style.display = totalPages > 1 ? 'flex' : 'none';
+                updatePagination();
+
+                // Clear list
+                listEl.innerHTML = '';
+
+                if (data.results.length === 0) {
+                    listEl.innerHTML = '<li class="loading">No publications found for this grant.</li>';
+                    return;
+                }
+
+                // Render works
+                data.results.forEach(work => {
+                    const li = document.createElement('li');
+                    li.className = 'work-item';
+
+                    const oaStatus = work.open_access?.oa_status || 'closed';
+                    const year = work.publication_year || 'N/A';
+                    const title = work.title || 'Untitled';
+                    const journal = work.primary_location?.source?.display_name || '';
+                    const workUrl = work.doi || work.id;
+
+                    li.innerHTML = `
+                        <span class="oa-badge ${oaStatus}">${oaStatus}</span>
+                        <div class="work-content">
+                            <a href="${workUrl}" target="_blank" class="work-title">${title}</a>
+                            <div class="work-meta">
+                                <span class="work-year">${year}</span>
+                                ${journal ? ` &middot; ${journal}` : ''}
+                            </div>
+                        </div>
+                    `;
+
+                    listEl.appendChild(li);
+                });
+
+            } catch (error) {
+                console.error('Error loading works:', error);
+                showError(`Failed to load publications: ${error.message}`);
+                listEl.innerHTML = '<li class="loading">Error loading publications.</li>';
+            }
+        }
+
+        function updatePagination() {
+            document.getElementById('prev-btn').disabled = currentPage <= 1;
+            document.getElementById('next-btn').disabled = currentPage >= totalPages;
+            document.getElementById('page-info').textContent = `Page ${currentPage} of ${totalPages || 1}`;
+        }
+
+        function changePage(delta) {
+            const newPage = currentPage + delta;
+            if (newPage >= 1 && newPage <= totalPages) {
+                loadWorks(newPage);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadGrantInfo);
+    </script>
+</body>
+</html>
