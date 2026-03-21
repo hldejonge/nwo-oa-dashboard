@@ -716,7 +716,7 @@
             <!-- Charts Row -->
             <div class="charts-row">
                 <div class="chart-card">
-                    <div class="chart-title">Publications by Year (2015–2025)</div>
+                    <div class="chart-title">Publications by Year (2015–2026)</div>
                     <div class="chart-container">
                         <canvas id="barChart"></canvas>
                     </div>
@@ -732,7 +732,7 @@
                     </div>
                 </div>
                 <div class="chart-card">
-                    <div class="chart-title">Access Status 2025</div>
+                    <div class="chart-title">Access Status 2026</div>
                     <div class="ring-chart-container">
                         <canvas id="ringChart"></canvas>
                         <div class="ring-center-text">
@@ -747,7 +747,7 @@
             <div class="bottom-charts-row">
                 <!-- Publisher Chart -->
                 <div class="chart-card publisher-chart-section">
-                    <div class="chart-title">Publications by Publisher (2025) — Top 15</div>
+                    <div class="chart-title">Publications by Publisher (2026) — Top 15</div>
                     <div class="publisher-chart-container">
                         <canvas id="publisherChart"></canvas>
                     </div>
@@ -777,7 +777,7 @@
 
                 <!-- Institution Chart -->
                 <div class="chart-card">
-                    <div class="chart-title">Publications by Institution (2025) — Top 15</div>
+                    <div class="chart-title">Publications by Institution (2026) — Top 15</div>
                     <div class="institution-chart-container">
                         <canvas id="institutionChart"></canvas>
                     </div>
@@ -1027,7 +1027,7 @@
 
                 // Get data grouped by year
                 const yearData = await fetchData('/works', {
-                    filter: `${FUNDER_FILTER},publication_year:2015-2025`,
+                    filter: `${FUNDER_FILTER},publication_year:2015-2026`,
                     group_by: 'publication_year'
                 });
 
@@ -1039,7 +1039,7 @@
 
                 // Get OA counts by year
                 const oaYearData = await fetchData('/works', {
-                    filter: `${FUNDER_FILTER},publication_year:2015-2025,is_oa:true`,
+                    filter: `${FUNDER_FILTER},publication_year:2015-2026,is_oa:true`,
                     group_by: 'publication_year'
                 });
 
@@ -1049,7 +1049,7 @@
                 });
 
                 // Build chart data
-                for (let year = 2015; year <= 2025; year++) {
+                for (let year = 2015; year <= 2026; year++) {
                     years.push(year.toString());
                     const total = yearTotals[year] || 0;
                     const oa = yearOA[year] || 0;
@@ -1134,7 +1134,7 @@
         // Load ring chart data for most recent complete year
         async function loadRingData() {
             try {
-                const currentYear = 2025;
+                const currentYear = 2026;
 
                 const oaData = await fetchData('/works', {
                     filter: `${FUNDER_FILTER},publication_year:${currentYear}`,
@@ -1238,7 +1238,7 @@
         // Load publisher data for vertical bar chart
         async function loadPublisherData() {
             try {
-                const currentYear = 2025;
+                const currentYear = 2026;
 
                 // Get publishers (host organizations) for the current year
                 const publisherData = await fetchData('/works', {
@@ -1439,7 +1439,7 @@
         // Load institution data for vertical bar chart
         async function loadInstitutionData() {
             try {
-                const currentYear = 2025;
+                const currentYear = 2026;
 
                 // Get institutions for the current year
                 const institutionData = await fetchData('/works', {
